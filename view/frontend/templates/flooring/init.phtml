@@ -1,0 +1,233 @@
+<?php
+/**
+ * @var $block \Mageants\Pricecalculator\Block\Product\PriceCalculator
+ */
+$storeid = $block->getStoreId();
+$product = $block->getProduct();
+$coverage = $block->getCoverage();
+$config = $block->getFlooringConfig();
+$enable = $block->isEnabled($storeid);
+$taxhelper = $block->getTaxHelper();
+$isflooringproduct = $block->isFlooring();
+$pricepackages= 0;
+
+$ProductOldPrice = $taxhelper->getTaxPrice($product, $product->getPrice(), true);
+$price = $taxhelper->getTaxPrice($product, $product->getFinalPrice(), true);
+if ($config && $coverage && $enable):
+    $unit = $block->getUnit();
+    $displayType = $block->getConfig('tax/display/type');
+    $taxPercent = $product->getTaxPercent();
+    $includeTax = $block->getConfig('tax/calculation/price_includes_tax', true);
+    $wastage = '';
+    if ($block->getWastage()) {
+        $wastage = trim($block->getWastage());
+    }
+    $hasWastage = true;
+    $unitprice =  $product->getUnitPrice();
+    if (isset($unitprice)) {
+        if ($unitprice=='1') {
+            $unit=__('Sqft/m²');
+        } elseif ($unitprice=='2') {
+            $unit=__('Box/Package');
+        } else {
+            $unit = __($block->getUnit());
+        }
+
+    } else {
+        $unit = __($block->getUnit());
+    }
+    if ($wastage == '') {
+        $hasWastage = false;
+    }
+    if (strpos((string)$wastage, "%") === false) {
+        $wastage .= '%';
+    }
+
+    $rate = 1 + $taxPercent / 100;
+    if ($includeTax) {
+        $rate = 100 / ($taxPercent + 100);
+    }
+    $unitPrice = $block->isUnitPrice($storeid);
+    $productUnitPrice = $product->getAttributeText('unit_price');
+
+    if (!strpos(strtolower((string)$productUnitPrice), "package") === false) {
+        $unitPrice = false;
+    }
+    $coverage = (float)$product->getFlooringCoverage();
+    if ($unitPrice) {
+        $coverage = 1;
+    }
+    $samplePrice = floatval($block->getSamplePrice());
+    ?>
+
+    <?php if ($product->getPrice() > $product->getFinalPrice()) { ?>
+        <p id="msrpTitle" style="font-weight:bold;padding: 10px 0;"><span
+                    class="label"><label><?= __('MSRP Price: ') ?> <span
+                            style="text-decoration: line-through; color:red;"><?= $block->formatPrice($ProductOldPrice / $coverage) ?></span><span
+                            id="mrspSqFtTitle"> per <?= $unit ?></span></label></span></p>
+<?php } ?>
+
+<?php
+
+?>
+
+    <?php if ($block->isYourPrice()) { ?>
+        <p id="qty2">
+            <b><span class="label">
+
+                <label><?= __('Onze prijs: ') ?><span class="unit-box-sqft" style="padding-left: 1px;"></span>
+                    <span style="color:green;" id="sqFtActualprice">
+                        <?php
+                            if($displayType == 3 || $displayType == 2){
+                                if($price != "0,00")
+                                {
+                                    echo $block->formatPrice($price);
+                                }
+                            }else{
+                                $temp_value = $product->getFinalPrice() / $coverage;
+                                if($temp_value != "0,00")
+                                {
+                                   echo $block->formatPrice($temp_value);
+                                }
+                            }
+
+                        ?>
+
+                    </span> per m²
+
+                </label>
+                </span>
+            </b>
+        </p>
+    <?php } ?>
+    <table cellspacing="0" cellpadding="4" id="priceCalc" class="table-pricecalculator loader-example">
+
+        <tr>
+            <td width="80%"><span class="label"><label><?= __('Voer benodigde m² in:') ?></label></span></td>
+            <td align="right">
+                <input type="number" id="flooring_input" class="input-text validate-not-negative-number" name="flooring_input" value=""/>
+            </td>
+        </tr>
+        <?php if ($block->isSampleEnabled()) { ?>
+            <tr>
+                <td width="80%">
+                    <span class="label"><label><?= ($samplePrice == 0) ? __('I want free sample') : __('I want sample') ?></label></span>
+                </td>
+                <td align="right">
+                    <input type="checkbox" price="0" id="free_sample" name="free_sample" class="checkbox">
+                </td>
+            </tr>
+        <?php } ?>
+
+        <?php if ($hasWastage) { ?>
+            <tr>
+                <td width="80%"><span class="label"><label><?= __('Wastage %1', $wastage) ?></label></span></td>
+                <td align="right">
+                    <input type="checkbox" price="0" id="wastage" name="wastage" class="checkbox">
+                </td>
+            </tr>
+        <?php } ?>
+        <tr>
+            <td width="80%"><span class="label"><label><?= __('Actual %1:', $unit) ?></label></span></td>
+            <td align="right"><span class="label"><label><span id="ActualSquareFeetContainer">0</span></label></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="80%"><span class="label"><label><?= __('Coverage %1:',$unit) ?></label></span></td>
+            <td align="right"><span class="label"><label><span id="converage-class">0</span></label></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td width="80%"><span class="label"><label><?= __('Price Per Box:') ?></label></span></td>
+            <td align="right"><span class="label"><label><span id="CartonPriceContainer">0</span></label></span></td>
+        </tr>
+        <tr>
+            <td width="80%"><span class="label"><label><?= __('Total Boxes:') ?></label></span></td>
+            <td align="right"><span class="label"><label><span id="TotalCartonContainer">0</span></label></span></td>
+        </tr>
+
+        <?php if ($displayType == 3) { ?>
+            <tr style="display: none !important;">
+                <td width="80%"><span class="label"><label><?= __('Total Price Excl. Tax:') ?></label></span>
+                </td>
+                <td align="right" style="text-align: right;"><span class="label"><label><span
+                                    id="TotalPriceContainer">0</span></label></span></td>
+            </tr>
+
+            <tr style="display: none !important;">
+                <td width="80%"><span class="label"><label><?= __('Total Price Incl. Tax:') ?></label></span>
+                </td>
+                <td align="right"><span class="label"><label><span
+                                    id="TotalPriceInclTaxContainer">0</span></label></span></td>
+            </tr>
+
+
+        <?php } else { ?>
+            <tr style="display: none !important;">
+                <td width="80%"><span class="label"><label><?= __('Total Price:') ?></label></span></td>
+                <td align="right"><span class="label"><label><span id="TotalPriceContainer">0</span></label></span></td>
+            </tr>
+
+            <tr style="display: none !important;">
+                <td width="80%"><span class="label"><label><?= __('Total Price Incl. Tax:') ?></label></span>
+                </td>
+                <td align="right"><span class="label"><label><span
+                                    id="TotalPriceInclTaxContainer">0</span></label></span></td>
+            </tr>
+
+        <?php } ?>
+        <input type="hidden" price="0" id="store_id" name="store_id" value="<?= $storeid ?>">
+    </table>
+    <script type="text/x-magento-init">
+    {
+        "*": {
+            "FlooringProductInit": <?= $config ?>
+        }
+    }
+    </script>
+    <script type="text/javascript">
+    require(['jquery'], function ($) {
+        $(document).ready(function () {
+            setTimeout(function(){
+                $('.product-info-main .product-info-price .price-box .special-price').css({ // Breeze fix: jQuery => $
+                    'display': 'block'
+                });
+
+                $('.price-including-tax .price').css({
+                    'display': 'block'
+                });
+
+                $('span.price-container.price-final_price.tax.weee').css({
+                    'display': 'block'
+                });
+                $('.price-wrapper.price-excluding-tax').css({
+                    'display': 'contents'
+                });
+                $('#sqFtActualprice').css({
+                    'display': 'inline-block'
+                });
+            },5000);
+        });
+    });
+    </script>
+<?php endif; ?>
+
+<script>
+require(['jquery', 'loader'], function ($) {
+    var isFlooringEnable = "<?php echo $isflooringproduct ?>";
+    if(isFlooringEnable == 0)
+    {
+        $('.product-info-main .product-info-price').show();
+    }
+    // To initialize loader
+    $('.loader-example').spinner(true); // Breeze fix: loader => spinner
+});
+</script>
+
+<style type="text/css">
+    .product-info-main .product-info-price
+    {
+       display: none;
+    }
+</style>
