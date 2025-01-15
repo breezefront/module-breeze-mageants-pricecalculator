@@ -8,7 +8,7 @@ define([
     var priceFormat = {};
     var FlooringProductInit = {
         FlooringProductInit: function (config) {
-            console.log(config);
+
             this.config = config;
             if(config && config.isflooring) {
                 var self = this;
@@ -33,10 +33,9 @@ define([
                 this.config_simple_covrage = config.config_simple_covrage;
                 this.flooringEnable = config.isflooring;
                 this.config_simple_specialprices = config.config_simple_specialprices;
+                this.config_simple_oldprices_html = config.config_simple_oldprices_html;
 
                 self.load();
-
-                console.log("tax....."+this.taxPercent)
             }
         },
         load : function(){
@@ -107,7 +106,6 @@ define([
             var selectedPrice = 0;
             var _self = this;
             $('.super-attribute-select').click(function (el) {
-                console.log("clicked...........");
                 var temp = false;
                 selectedPrice = parseFloat($('option:selected', this).attr('price'));
                 if(selectedPrice)
@@ -224,7 +222,6 @@ define([
 
             var configurablecovrage = 0;
             configurablecovrage = localStorage.getItem('configurablecoverage');
-            console.log(".........configurablecoverage 1======="+configurablecovrage);
 
             var coverage = this.coverage;
 
@@ -292,7 +289,6 @@ define([
 
             var configurablecovrage = 0;
             configurablecovrage = localStorage.getItem('configurablecoverage');
-            console.log(".........configurablecoverage 2======="+configurablecovrage);
 
             if(configurablecovrage != 0)
             {
@@ -341,7 +337,7 @@ define([
             if (boxes < check){
                 boxes = boxes + 1;
             }
-            if (boxes < 1){
+            if (boxes < 1 || isNaN(boxes)){
                 boxes = 1;
             }
             $('#qty').val(boxes);
@@ -350,7 +346,7 @@ define([
         },
         getFromQty : function(){
             var  boxes = parseInt($('#qty').val());
-            if (boxes < 1) {
+            if (boxes < 1 || isNaN(boxes)) { // Breeze fix: boxes is NaN
                 boxes = 1;
                 $('#qty').val(boxes);
             }
@@ -359,7 +355,6 @@ define([
 
             var configurablecovrage = 0;
             configurablecovrage = localStorage.getItem('configurablecoverage');
-            console.log(".........configurablecoverage 3======="+configurablecovrage);
 
             if(configurablecovrage != 0)
             {
@@ -388,7 +383,7 @@ define([
         },
         getFromQties : function(){
             var  boxes = parseInt($('#qty').val());
-            if (boxes < 1) {
+            if (boxes < 1 || isNaN(boxes)) { // Breeze fix: boxes is NaN
                 boxes = 1;
                 $('#qty').val(boxes);
             }
@@ -396,7 +391,6 @@ define([
 
             var configurablecovrage = 0;
             configurablecovrage = localStorage.getItem('configurablecoverage');
-            console.log(".........configurablecoverage 4======="+configurablecovrage);
 
             if(configurablecovrage != 0)
             {
@@ -411,7 +405,6 @@ define([
                 }
             }
 
-            console.log("new coverae..."+coverage);
 
             var coverageValue = this.getFormattedNumber(coverage);
             if($('#converage-class') != undefined){
@@ -437,11 +430,9 @@ define([
 
             var configurablePrice = 0;
             configurablePrice = localStorage.getItem('confiurableprice');
-            console.log(".........configurablePrice======="+configurablePrice);
 
             var configurableSpecialPrice = 0;
             configurableSpecialPrice = localStorage.getItem('confiurablespecialprice');
-            console.log(".........configurablespecialPrice======="+configurableSpecialPrice);
 
            /* if($('.old-price.no-display').length)
             {
@@ -451,7 +442,6 @@ define([
 
             var configurablecovrage = 0;
             configurablecovrage = localStorage.getItem('configurablecoverage');
-            console.log(".........configurablecoverage 5======="+configurablecovrage);
 
             var specialprice   = parseFloat(this.specialprice * 1);
 
@@ -578,23 +568,19 @@ define([
         if(configurablePrice != 0)
         {
             price = configurablePrice;
-            console.log("if......."+configurablePrice);
         }
         else
         {
             price = price;
-            console.log("else......."+price);
         }
 
         if(configurableSpecialPrice != 0)
         {
             specialprice = configurableSpecialPrice;
-            console.log("if specialprice......."+configurableSpecialPrice);
         }
         else
         {
             specialprice = specialprice;
-            console.log("else specialprice......."+specialprice);
         }
 
         if(this.taxPercent > 0)
@@ -611,9 +597,6 @@ define([
       //  price = 500;
 
         var boxPrice = rate * price;
-        console.log("price...."+price);
-        console.log("boxPrice...."+boxPrice);
-        console.log("specialprice...."+specialprice);
         var specialboxprice = rate * specialprice;
 
 
