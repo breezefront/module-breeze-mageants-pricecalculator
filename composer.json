@@ -2,7 +2,7 @@
     "name": "swissup/module-breeze-mageants-pricecalculator",
     "description": "Mageants Price Calculator integration with Breeze Frontend",
     "type": "magento2-module",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "license": "OSL-3.0",
     "autoload": {
         "files": [
