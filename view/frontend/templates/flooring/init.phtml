@@ -63,16 +63,19 @@ if ($config && $coverage && $enable):
     <?php if ($product->getPrice() > $product->getFinalPrice()) { ?>
         <p id="msrpTitle" style="font-weight:bold;padding: 10px 0;"><span
                     class="label"><label><?= __('MSRP Price: ') ?> <span
-                            style="text-decoration: line-through; color:red;"><?= $block->formatPrice($ProductOldPrice / $coverage) ?></span><span
+                            style="text-decoration: line-through; color:red;"
+                            class="msrpTitleOldPrice"><?= $block->formatPrice($ProductOldPrice / $coverage) ?></span><span
                             id="mrspSqFtTitle"> per <?= $unit ?></span></label></span></p>
-<?php } ?>
+    <?php } else { ?>
+        <p id="msrpTitle" style="font-weight:bold;padding: 10px 0;"></p>
+    <?php } ?>
 
 <?php
 
 ?>
 
     <?php if ($block->isYourPrice()) { ?>
-        <p id="qty2">
+        <p id="qty2" style="display: none;">
             <b><span class="label">
 
                 <label><?= __('Onze prijs: ') ?><span class="unit-box-sqft" style="padding-left: 1px;"></span>
@@ -216,8 +219,13 @@ if ($config && $coverage && $enable):
 <script>
 require(['jquery', 'loader'], function ($) {
     var isFlooringEnable = "<?php echo $isflooringproduct ?>";
-    if(isFlooringEnable == 0)
+    var pType = "<?= $product->getTypeId(); ?>";
+    if(isFlooringEnable == 0 && pType == 'configurable')
     {
+        setTimeout(function() {
+            $('.product-info-main .product-info-price').show();
+        }, 5000);
+    } else if (isFlooringEnable == 0) {
         $('.product-info-main .product-info-price').show();
     }
     // To initialize loader
