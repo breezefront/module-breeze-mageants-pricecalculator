@@ -19,6 +19,19 @@
 
                     <item name="product-configurable" xsi:type="array">
                         <item name="items" xsi:type="array">
+                            <item name="mageants-configurable-mixin" xsi:type="array">
+                                <item name="path" xsi:type="string">Swissup_BreezeMageantsPricecalculator/js/configurable-mixin</item>
+                                <item name="import" xsi:type="array">
+                                    <item name="FlooringProductInit" xsi:type="string">FlooringProductInit</item>
+                                </item>
+                                <item name="mixins" xsi:type="array">
+                                    <item name="configurable" xsi:type="string">Magento_ConfigurableProduct/js/configurable</item>
+                                </item>
+                                <item name="load" xsi:type="array">
+                                    <item name="onRequire" xsi:type="boolean">true</item>
+                                </item>
+                            </item>
+
                             <item name="mageants-swatch-renderer-mixin" xsi:type="array">
                                 <item name="path" xsi:type="string">Swissup_BreezeMageantsPricecalculator/js/swatch-renderer-mixin</item>
                                 <item name="import" xsi:type="array">
